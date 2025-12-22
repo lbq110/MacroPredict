@@ -10,3 +10,4 @@ redis
 celery
 requests
 httpx
+email-validator
