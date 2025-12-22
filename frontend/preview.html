@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MacroPredict | PRD-Aligned Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Outfit:wght@400;700;900&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --brand-primary: #3b82f6;
+            --brand-dark: #0f172a;
+            --financial-up: #10b981;
+            --financial-down: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--brand-dark);
+            color: #f1f5f9;
+        }
+
+        .font-display {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .card-premium {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: var(--brand-primary);
+            color: white;
+            font-weight: 900;
+            border-radius: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.3);
+        }
+
+        .nav-link.active {
+            background: var(--brand-primary);
+            color: white;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen">
+    <div id="app" class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 border-r border-white/5 p-6 space-y-8 flex flex-col">
+            <div class="flex items-center gap-4">
+                <div
+                    class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center font-black text-white text-xl shadow-lg shadow-blue-600/30">
+                    M</div>
+                <span class="font-display font-black text-xl tracking-tight">MacroPredict</span>
+            </div>
+
+            <nav id="sidebar-nav" class="flex-1 space-y-3">
+                <button onclick="navigate('markets')" id="nav-markets"
+                    class="nav-link active w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all font-bold text-sm">
+                    <i data-lucide="layout-grid" size="20"></i> Markets
+                </button>
+                <button onclick="navigate('calendar')" id="nav-calendar"
+                    class="nav-link w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-slate-400 hover:bg-white/5 transition-all font-bold text-sm">
+                    <i data-lucide="calendar" size="20"></i> Calendar
+                </button>
+                <button onclick="navigate('rankings')" id="nav-rankings"
+                    class="nav-link w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-slate-400 hover:bg-white/5 transition-all font-bold text-sm">
+                    <i data-lucide="trophy" size="20"></i> Rankings
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 md:p-10 overflow-y-auto">
+            <!-- DASHBOARD VIEW -->
+            <div id="markets-view" class="view space-y-12">
+                <header class="flex justify-between items-end">
+                    <div>
+                        <h1 class="text-3xl font-display font-black mb-2 uppercase tracking-tight">Markets</h1>
+                        <p class="text-slate-500 font-bold">Trade global macro volatility.</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <div class="bg-slate-800/50 p-1.5 rounded-2xl border border-white/5 flex">
+                            <button class="px-5 py-2 rounded-xl bg-slate-700 text-xs font-black">All</button>
+                            <button
+                                class="px-5 py-2 rounded-xl text-xs font-black text-slate-500 hover:text-white transition-all">Crypto</button>
+                            <button
+                                class="px-5 py-2 rounded-xl text-xs font-black text-slate-500 hover:text-white transition-all">Indices</button>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <!-- BTC Card -->
+                    <div class="card-premium p-6 rounded-[2rem] cursor-pointer hover:scale-[1.02] transition-all group"
+                        onclick="navigate('asset')">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div
+                                class="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center text-orange-500 shadow-inner group-hover:bg-orange-500/20 transition-colors">
+                                <i data-lucide="bitcoin" size="24"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-display font-black text-lg uppercase tracking-tight leading-tight">
+                                    BTC/USD</h3>
+                                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Bitcoin</p>
+                            </div>
+                            <span
+                                class="bg-emerald-500/10 text-emerald-500 text-[10px] font-black px-2.5 py-1 rounded-lg border border-emerald-500/20 flex items-center gap-1">
+                                <i data-lucide="trending-up" size="10"></i> +2.45%
+                            </span>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="text-3xl font-black text-white tracking-tight">$64,230.50</div>
+                            <div class="flex items-center gap-1.5 text-slate-500">
+                                <i data-lucide="clock" size="12" class="opacity-50"></i>
+                                <span class="text-[10px] font-bold">Upcoming: CPI Release (2h)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ETH Card -->
+                    <div class="card-premium p-6 rounded-[2rem] cursor-pointer hover:scale-[1.02] transition-all group"
+                        onclick="navigate('asset')">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div
+                                class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-500 shadow-inner group-hover:bg-indigo-500/20 transition-colors">
+                                <i data-lucide="coins" size="24"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-display font-black text-lg uppercase tracking-tight leading-tight">
+                                    ETH/USD</h3>
+                                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Ethereum</p>
+                            </div>
+                            <span
+                                class="bg-emerald-500/10 text-emerald-500 text-[10px] font-black px-2.5 py-1 rounded-lg border border-emerald-500/20 flex items-center gap-1">
+                                <i data-lucide="trending-up" size="10"></i> +1.82%
+                            </span>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="text-3xl font-black text-white tracking-tight">$3,450.20</div>
+                            <div class="flex items-center gap-1.5 text-slate-500">
+                                <i data-lucide="clock" size="12" class="opacity-50"></i>
+                                <span class="text-[10px] font-bold">Upcoming: Dencun Upgrade (1d)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gold Card -->
+                    <div class="card-premium p-6 rounded-[2rem] cursor-pointer hover:scale-[1.02] transition-all group"
+                        onclick="navigate('asset')">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div
+                                class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500 shadow-inner group-hover:bg-amber-500/20 transition-colors">
+                                <i data-lucide="gem" size="24"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-display font-black text-lg uppercase tracking-tight leading-tight">
+                                    XAU/USD</h3>
+                                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Gold Spot</p>
+                            </div>
+                            <span
+                                class="bg-rose-500/10 text-rose-500 text-[10px] font-black px-2.5 py-1 rounded-lg border border-rose-500/20 flex items-center gap-1">
+                                <i data-lucide="trending-down" size="10"></i> -0.15%
+                            </span>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="text-3xl font-black text-white tracking-tight">$2,154.60</div>
+                            <div class="flex items-center gap-1.5 text-slate-500">
+                                <i data-lucide="clock" size="12" class="opacity-50"></i>
+                                <span class="text-[10px] font-bold">Upcoming: FOMC Minutes (4h)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- S&P 500 Card -->
+                    <div class="card-premium p-6 rounded-[2rem] cursor-pointer hover:scale-[1.02] transition-all group"
+                        onclick="navigate('asset')">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div
+                                class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500 shadow-inner group-hover:bg-blue-500/20 transition-colors">
+                                <i data-lucide="bar-chart-2" size="24"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-display font-black text-lg uppercase tracking-tight leading-tight">SPX
+                                </h3>
+                                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">S&P 500 Index
+                                </p>
+                            </div>
+                            <span
+                                class="bg-emerald-500/10 text-emerald-500 text-[10px] font-black px-2.5 py-1 rounded-lg border border-emerald-500/20 flex items-center gap-1">
+                                <i data-lucide="trending-up" size="10"></i> +0.42%
+                            </span>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="text-3xl font-black text-white tracking-tight">5,123.69</div>
+                            <div class="flex items-center gap-1.5 text-slate-500">
+                                <i data-lucide="clock" size="12" class="opacity-50"></i>
+                                <span class="text-[10px] font-bold">Upcoming: Jobs Report (2d)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NASDAQ Card -->
+                    <div class="card-premium p-6 rounded-[2rem] cursor-pointer hover:scale-[1.02] transition-all group"
+                        onclick="navigate('asset')">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div
+                                class="w-12 h-12 bg-blue-400/10 rounded-xl flex items-center justify-center text-blue-400 shadow-inner group-hover:bg-blue-400/20 transition-colors">
+                                <i data-lucide="activity" size="24"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-display font-black text-lg uppercase tracking-tight leading-tight">IXIC
+                                </h3>
+                                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">NASDAQ
+                                    Composite</p>
+                            </div>
+                            <span
+                                class="bg-emerald-500/10 text-emerald-500 text-[10px] font-black px-2.5 py-1 rounded-lg border border-emerald-500/20 flex items-center gap-1">
+                                <i data-lucide="trending-up" size="10"></i> +0.12%
+                            </span>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="text-3xl font-black text-white tracking-tight">16,103.45</div>
+                            <div class="flex items-center gap-1.5 text-slate-500">
+                                <i data-lucide="clock" size="12" class="opacity-50"></i>
+                                <span class="text-[10px] font-bold">Upcoming: NVDA Earnings (3d)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Brent Oil Card -->
+                    <div class="card-premium p-6 rounded-[2rem] cursor-pointer hover:scale-[1.02] transition-all group"
+                        onclick="navigate('asset')">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div
+                                class="w-12 h-12 bg-slate-500/10 rounded-xl flex items-center justify-center text-slate-400 shadow-inner group-hover:bg-slate-500/20 transition-colors">
+                                <i data-lucide="droplet" size="24"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-display font-black text-lg uppercase tracking-tight leading-tight">OIL
+                                </h3>
+                                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Brent Crude
+                                </p>
+                            </div>
+                            <span
+                                class="bg-rose-500/10 text-rose-500 text-[10px] font-black px-2.5 py-1 rounded-lg border border-rose-500/20 flex items-center gap-1">
+                                <i data-lucide="trending-down" size="10"></i> -1.24%
+                            </span>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="text-3xl font-black text-white tracking-tight">$82.45</div>
+                            <div class="flex items-center gap-1.5 text-slate-500">
+                                <i data-lucide="clock" size="12" class="opacity-50"></i>
+                                <span class="text-[10px] font-bold">Upcoming: OPEC+ Meeting (5d)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CALENDAR VIEW -->
+            <div id="calendar-view" class="view hidden space-y-12">
+                <header>
+                    <h1 class="text-3xl font-display font-black mb-2 uppercase tracking-tight">Economic Calendar</h1>
+                    <p class="text-slate-500 font-bold">Real-time macro data tracking.</p>
+                </header>
+                <div class="card-premium rounded-[2.5rem] overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-900/40">
+                            <tr
+                                class="text-[10px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
+                                <th class="px-8 py-6">Time (UTC)</th>
+                                <th class="px-8 py-6">Event</th>
+                                <th class="px-8 py-6 text-center">Impact</th>
+                                <th class="px-8 py-6 text-right">Market</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            <tr class="hover:bg-blue-600/5 transition-all">
+                                <td class="px-8 py-6">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-black">Dec 19</span>
+                                        <span class="text-[10px] text-slate-500 font-bold opacity-60">13:30</span>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-6 font-display font-black">Consumer Price Index (CPI)</td>
+                                <td class="px-8 py-6 text-center">
+                                    <span
+                                        class="bg-rose-500/10 text-rose-500 text-[10px] font-black px-3 py-1 rounded-lg">HIGH</span>
+                                </td>
+                                <td class="px-8 py-6 text-right">
+                                    <button
+                                        class="bg-blue-600/10 text-blue-400 px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-blue-600 hover:text-white transition-all">BTC
+                                        Markets</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- RANKINGS VIEW -->
+            <div id="rankings-view" class="view hidden space-y-12">
+                <header>
+                    <h1 class="text-3xl font-display font-black mb-2 uppercase tracking-tight">Leaderboards</h1>
+                    <p class="text-slate-500 font-bold">Elite macroeconomic predictors.</p>
+                </header>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div
+                        class="card-premium p-8 rounded-[2.5rem] bg-gradient-to-br from-amber-500/10 to-transparent border-amber-500/20">
+                        <div
+                            class="w-12 h-12 bg-amber-500/20 rounded-2xl flex items-center justify-center text-amber-500 mb-6">
+                            <i data-lucide="medal"></i>
+                        </div>
+                        <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Champion</h3>
+                        <p class="text-2xl font-display font-black">MacroPredictor_Alpha</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ASSET DETAIL VIEW -->
+            <div id="asset-view" class="view hidden space-y-10">
+                <button onclick="navigate('markets')"
+                    class="flex items-center gap-2 text-slate-500 hover:text-white transition-all font-black text-xs uppercase tracking-widest">
+                    <i data-lucide="chevron-left" size="18"></i> Back to Markets
+                </button>
+                <div class="flex justify-between items-center">
+                    <h2 class="text-4xl font-display font-black uppercase tracking-tight">BTC/USD</h2>
+                </div>
+                <div class="max-w-4xl space-y-8">
+                    <!-- Market Sentiment Card -->
+                    <div class="card-premium p-8 rounded-[2rem] bg-white text-slate-900 border-none shadow-glass-xl">
+                        <div class="flex items-center gap-4 mb-8">
+                            <div
+                                class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500">
+                                <i data-lucide="heart-pulse"></i>
+                            </div>
+                            <h3 class="text-xl font-display font-black uppercase tracking-tight">Market Sentiment</h3>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                            <div class="space-y-6">
+                                <div class="flex justify-between items-end">
+                                    <span class="text-emerald-500 font-black tracking-widest text-sm">BULLISH</span>
+                                    <span class="text-4xl font-display font-black text-slate-800">68%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-5 overflow-hidden p-1 shadow-inner">
+                                    <div
+                                        class="bg-gradient-to-r from-emerald-400 to-emerald-500 h-full rounded-full w-[68%] shadow-lg">
+                                    </div>
+                                </div>
+                                <p class="text-slate-500 text-sm leading-relaxed font-medium">
+                                    Based on the last 24h prediction volume. Traders are expecting a positive outcome
+                                    for the upcoming release, reflecting strong market confidence.
+                                </p>
+                            </div>
+                            <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 space-y-4">
+                                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active
+                                    Predictions</h4>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-bold text-slate-600">Total Volume</span>
+                                    <span class="text-sm font-black text-slate-900">$1.2M</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-bold text-slate-600">Unique Users</span>
+                                    <span class="text-sm font-black text-slate-900">4,230</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Historical Trend Card -->
+                    <div class="card-premium p-8 rounded-[2rem] bg-white text-slate-900 border-none shadow-glass-xl">
+                        <div class="flex justify-between items-center mb-8">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-500">
+                                    <i data-lucide="bar-chart-3"></i>
+                                </div>
+                                <h3 class="text-xl font-display font-black uppercase tracking-tight">Historical Trend
+                                </h3>
+                            </div>
+                            <div class="flex gap-2">
+                                <button
+                                    class="p-2.5 bg-slate-100 rounded-xl text-slate-400 hover:text-slate-600 transition-all">
+                                    <i data-lucide="info" size="18"></i>
+                                </button>
+                                <button
+                                    class="flex items-center gap-2 px-5 py-2.5 bg-slate-100 rounded-xl text-slate-700 font-black text-xs uppercase tracking-wider hover:bg-slate-200 transition-all border border-slate-200/50">
+                                    <i data-lucide="download" size="16"></i> Export Image
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Mock Chart Visualization -->
+                        <div
+                            class="relative h-80 bg-slate-50 rounded-[2rem] border border-slate-100 overflow-hidden flex items-center justify-center group">
+                            <div class="absolute inset-0 opacity-10 pointer-events-none">
+                                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor"
+                                                stroke-width="1" />
+                                        </pattern>
+                                    </defs>
+                                    <rect width="100%" height="100%" fill="url(#grid)" />
+                                </svg>
+                            </div>
+                            <div class="flex flex-col items-center gap-4">
+                                <div
+                                    class="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-500 animate-pulse">
+                                    <i data-lucide="line-chart" size="32"></i>
+                                </div>
+                                <p class="font-display font-black text-slate-300 uppercase tracking-[0.2em] text-sm">
+                                    Real-time Data Stream</p>
+                            </div>
+
+                            <!-- Legend Overlay -->
+                            <div class="absolute bottom-6 left-6 flex gap-6">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-blue-500 shrink-0"></div>
+                                    <span
+                                        class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Actual</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-orange-500 shrink-0"></div>
+                                    <span
+                                        class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Forecast</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Prediction Console Integration -->
+                    <div class="card-premium p-8 rounded-[2rem] bg-slate-900 border border-white/5 shadow-2xl">
+                        <div class="flex justify-between items-center mb-8">
+                            <h3 class="text-xl font-display font-black text-white uppercase tracking-tight">Prediction
+                                Console</h3>
+                            <div
+                                class="px-4 py-1.5 bg-blue-500/10 rounded-full text-blue-400 text-[10px] font-black uppercase tracking-widest border border-blue-500/20">
+                                Live Market
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-6">
+                            <button
+                                class="group relative overflow-hidden py-6 bg-emerald-500 text-white rounded-[1.5rem] font-black text-lg transition-all active:scale-95 shadow-lg shadow-emerald-500/20">
+                                <div class="relative z-10 flex flex-col items-center gap-1">
+                                    <span class="uppercase tracking-widest">PREDICT OVER</span>
+                                    <span class="text-xs opacity-60 font-medium">Earn up to 2.4x</span>
+                                </div>
+                                <div
+                                    class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                                </div>
+                            </button>
+                            <button
+                                class="group relative overflow-hidden py-6 bg-rose-500 text-white rounded-[1.5rem] font-black text-lg transition-all active:scale-95 shadow-lg shadow-rose-500/20">
+                                <div class="relative z-10 flex flex-col items-center gap-1">
+                                    <span class="uppercase tracking-widest">PREDICT UNDER</span>
+                                    <span class="text-xs opacity-60 font-medium">Earn up to 1.8x</span>
+                                </div>
+                                <div
+                                    class="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        function navigate(view) {
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+            document.getElementById(view + '-view').classList.remove('hidden');
+
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active', 'bg-white/5', 'text-white'));
+            const activeNav = document.getElementById('nav-' + view);
+            if (activeNav) {
+                activeNav.classList.add('active');
+            }
+        }
+    </script>
+</body>
+
+</html>

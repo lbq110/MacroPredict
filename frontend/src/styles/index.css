@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-inter: 'Inter', sans-serif;
+  --font-outfit: 'Outfit', sans-serif;
+}
+
+@layer base {
+  body {
+    @apply antialiased font-sans transition-colors duration-200 bg-brand-light dark:bg-brand-dark text-slate-900 dark:text-slate-100;
+  }
+
+  /* Custom Scrollbar for Pro Feel */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-200 dark:bg-slate-700 rounded-full hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors;
+  }
+}
+
+@layer components {
+  .font-display {
+    font-family: 'Outfit', sans-serif;
+    @apply tracking-tight;
+  }
+
+  .card-premium {
+    @apply bg-white/90 dark:bg-slate-800/90 rounded-2xl shadow-glass-md border border-slate-200/50 dark:border-slate-700/50 overflow-hidden backdrop-blur-sm hover:shadow-glass-lg transition-all duration-300;
+  }
+
+  .btn-primary {
+    @apply px-4 py-2 bg-brand-primary hover:bg-brand-secondary text-white rounded-xl font-semibold transition-all shadow-lg shadow-brand-primary/20 hover:shadow-brand-primary/40 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .glass-panel {
+    @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/40 dark:border-slate-800/40 shadow-glass-lg;
+  }
+
+  .glass-panel-dark {
+    @apply bg-slate-900/40 backdrop-blur-md border border-white/10 shadow-2xl;
+  }
+
+  .text-gradient-primary {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-primary to-brand-secondary;
+  }
+}
