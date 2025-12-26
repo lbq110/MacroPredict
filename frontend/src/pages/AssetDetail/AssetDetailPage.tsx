@@ -1,14 +1,80 @@
-import React, { useState, useMemo, Suspense, lazy } from 'react'
+import React, { useState, useMemo, Suspense } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, Info, ExternalLink, Share2, Star, Loader2, TrendingUp, Activity, Target } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Info, ExternalLink, Share2, Star, Loader2, TrendingUp, TrendingDown } from 'lucide-react'
 
-// Import components with correct paths
+// Import components
 import BettingPanel from '../../components/BettingPanel/BettingPanel'
 import PriceChart from '../../components/PriceChart/PriceChart'
-import ScenarioStatsTable from '../../components/ScenarioStatsTable/ScenarioStatsTable'
-import EventAnalysisChart from '../../components/charts/EventAnalysisChart'
+import MacroEventCard from '../../components/MacroEvents/MacroEventCard'
 
-// Asset configuration map with realistic data
+// Macro event definitions
+const macroEvents = {
+    cpi: {
+        id: 'cpi',
+        name: 'Consumer Price Index (CPI)',
+        nameCn: '消费者价格指数',
+        description: 'US Consumer Price Index - Core inflation measurement',
+        nextRelease: '2025-01-15 08:30 EST',
+    },
+    nfp: {
+        id: 'nfp',
+        name: 'Non-Farm Payrolls',
+        nameCn: '非农就业数据',
+        description: 'US Non-Farm Payrolls - Employment report',
+        nextRelease: '2025-01-10 08:30 EST',
+    },
+    fomc: {
+        id: 'fomc',
+        name: 'Fed Interest Rate Decision',
+        nameCn: '美联储利率决议',
+        description: 'Federal Reserve FOMC Interest Rate Decision',
+        nextRelease: '2025-01-29 14:00 EST',
+    },
+    gdp: {
+        id: 'gdp',
+        name: 'GDP Growth Rate',
+        nameCn: '国内生产总值',
+        description: 'US Gross Domestic Product quarterly report',
+        nextRelease: '2025-01-30 08:30 EST',
+    },
+    earnings: {
+        id: 'earnings',
+        name: 'Quarterly Earnings',
+        nameCn: '季度财报',
+        description: 'Company quarterly earnings report',
+        nextRelease: '2025-02-20 16:00 EST',
+    },
+    ecb: {
+        id: 'ecb',
+        name: 'ECB Interest Rate Decision',
+        nameCn: '欧洲央行利率决议',
+        description: 'European Central Bank rate decision',
+        nextRelease: '2025-01-30 13:45 CET',
+    },
+    eia: {
+        id: 'eia',
+        name: 'EIA Crude Oil Inventory',
+        nameCn: 'EIA原油库存',
+        description: 'Weekly petroleum status report',
+        nextRelease: '2025-01-08 10:30 EST',
+    },
+    opec: {
+        id: 'opec',
+        name: 'OPEC+ Meeting',
+        nameCn: 'OPEC+会议',
+        description: 'OPEC+ production decision',
+        nextRelease: '2025-02-03 14:00 CET',
+    },
+    treasury: {
+        id: 'treasury',
+        name: 'Treasury Auction',
+        nameCn: '美债拍卖',
+        description: 'US Treasury bond auction results',
+        nextRelease: '2025-01-09 13:00 EST',
+    },
+}
+
+// Asset configuration with macro events
 const assetConfig: Record<string, {
     name: string;
     description: string;
@@ -16,86 +82,257 @@ const assetConfig: Record<string, {
     volatility: number;
     change: number;
     tradingViewSymbol: string;
+    macroEventIds: string[];
+    macroStats: Record<string, {
+        aboveExpectation: { count: number; avgChange: number; upProb: number; downProb: number };
+        meetsExpectation: { count: number; avgChange: number; upProb: number; downProb: number };
+        belowExpectation: { count: number; avgChange: number; upProb: number; downProb: number };
+    }>;
 }> = {
-    // Crypto
+    // Crypto - BTC
     'Crypto:L1:BTC': {
         name: 'BTC',
         description: 'Bitcoin / US Dollar',
-        basePrice: 88436.39,
+        basePrice: 98436.39,
         volatility: 500,
         change: -0.44,
-        tradingViewSymbol: 'BTCUSD'
+        tradingViewSymbol: 'BTCUSD',
+        macroEventIds: ['cpi', 'nfp', 'fomc'],
+        macroStats: {
+            cpi: {
+                aboveExpectation: { count: 28, avgChange: -2.1, upProb: 32, downProb: 68 },
+                meetsExpectation: { count: 23, avgChange: 0.3, upProb: 52, downProb: 48 },
+                belowExpectation: { count: 33, avgChange: 1.8, upProb: 65, downProb: 35 },
+            },
+            nfp: {
+                aboveExpectation: { count: 31, avgChange: -1.5, upProb: 38, downProb: 62 },
+                meetsExpectation: { count: 18, avgChange: 0.2, upProb: 50, downProb: 50 },
+                belowExpectation: { count: 35, avgChange: 2.1, upProb: 68, downProb: 32 },
+            },
+            fomc: {
+                aboveExpectation: { count: 12, avgChange: -3.2, upProb: 25, downProb: 75 },
+                meetsExpectation: { count: 42, avgChange: 0.5, upProb: 55, downProb: 45 },
+                belowExpectation: { count: 18, avgChange: 2.8, upProb: 72, downProb: 28 },
+            },
+        },
     },
+    // Crypto - ETH
     'Crypto:L1:ETH': {
         name: 'ETH',
         description: 'Ethereum / US Dollar',
-        basePrice: 2976.20,
+        basePrice: 3376.20,
         volatility: 50,
         change: 0.19,
-        tradingViewSymbol: 'ETHUSD'
+        tradingViewSymbol: 'ETHUSD',
+        macroEventIds: ['cpi', 'nfp', 'fomc'],
+        macroStats: {
+            cpi: {
+                aboveExpectation: { count: 26, avgChange: -2.5, upProb: 30, downProb: 70 },
+                meetsExpectation: { count: 22, avgChange: 0.4, upProb: 51, downProb: 49 },
+                belowExpectation: { count: 30, avgChange: 2.2, upProb: 67, downProb: 33 },
+            },
+            nfp: {
+                aboveExpectation: { count: 29, avgChange: -1.8, upProb: 35, downProb: 65 },
+                meetsExpectation: { count: 16, avgChange: 0.3, upProb: 52, downProb: 48 },
+                belowExpectation: { count: 33, avgChange: 2.5, upProb: 70, downProb: 30 },
+            },
+            fomc: {
+                aboveExpectation: { count: 11, avgChange: -3.8, upProb: 22, downProb: 78 },
+                meetsExpectation: { count: 40, avgChange: 0.6, upProb: 54, downProb: 46 },
+                belowExpectation: { count: 16, avgChange: 3.2, upProb: 75, downProb: 25 },
+            },
+        },
     },
-    // Equities
+    // Equities - NVDA
     'Equity:USTECH:NVDA': {
         name: 'NVDA',
         description: 'NVIDIA Corporation',
-        basePrice: 875.50,
-        volatility: 15,
+        basePrice: 138.50,
+        volatility: 5,
         change: 3.2,
-        tradingViewSymbol: 'NVDA'
+        tradingViewSymbol: 'NVDA',
+        macroEventIds: ['earnings', 'gdp', 'fomc'],
+        macroStats: {
+            earnings: {
+                aboveExpectation: { count: 18, avgChange: 8.5, upProb: 85, downProb: 15 },
+                meetsExpectation: { count: 8, avgChange: -1.2, upProb: 40, downProb: 60 },
+                belowExpectation: { count: 6, avgChange: -12.3, upProb: 10, downProb: 90 },
+            },
+            gdp: {
+                aboveExpectation: { count: 22, avgChange: 2.1, upProb: 68, downProb: 32 },
+                meetsExpectation: { count: 25, avgChange: 0.3, upProb: 52, downProb: 48 },
+                belowExpectation: { count: 19, avgChange: -1.5, upProb: 35, downProb: 65 },
+            },
+            fomc: {
+                aboveExpectation: { count: 14, avgChange: -2.8, upProb: 30, downProb: 70 },
+                meetsExpectation: { count: 38, avgChange: 0.8, upProb: 58, downProb: 42 },
+                belowExpectation: { count: 15, avgChange: 3.5, upProb: 75, downProb: 25 },
+            },
+        },
     },
+    // Equities - S&P 500
     'Equity:Index:SPX': {
         name: 'S&P 500',
         description: 'S&P 500 Index',
-        basePrice: 6834.49,
+        basePrice: 5983.49,
         volatility: 30,
         change: 0.88,
-        tradingViewSymbol: 'SPX'
+        tradingViewSymbol: 'SPX',
+        macroEventIds: ['cpi', 'nfp', 'gdp'],
+        macroStats: {
+            cpi: {
+                aboveExpectation: { count: 30, avgChange: -0.8, upProb: 38, downProb: 62 },
+                meetsExpectation: { count: 28, avgChange: 0.2, upProb: 55, downProb: 45 },
+                belowExpectation: { count: 26, avgChange: 0.9, upProb: 65, downProb: 35 },
+            },
+            nfp: {
+                aboveExpectation: { count: 32, avgChange: 0.5, upProb: 58, downProb: 42 },
+                meetsExpectation: { count: 20, avgChange: 0.1, upProb: 52, downProb: 48 },
+                belowExpectation: { count: 30, avgChange: -0.6, upProb: 40, downProb: 60 },
+            },
+            gdp: {
+                aboveExpectation: { count: 24, avgChange: 1.2, upProb: 72, downProb: 28 },
+                meetsExpectation: { count: 22, avgChange: 0.2, upProb: 54, downProb: 46 },
+                belowExpectation: { count: 18, avgChange: -1.5, upProb: 28, downProb: 72 },
+            },
+        },
     },
-    // Forex
+    // Forex - EUR/USD
     'Forex:EUR:USD': {
         name: 'EUR/USD',
         description: 'Euro / US Dollar',
-        basePrice: 1.09,
+        basePrice: 1.04,
         volatility: 0.005,
         change: -0.3,
-        tradingViewSymbol: 'EURUSD'
+        tradingViewSymbol: 'EURUSD',
+        macroEventIds: ['ecb', 'cpi', 'nfp'],
+        macroStats: {
+            ecb: {
+                aboveExpectation: { count: 15, avgChange: -0.8, upProb: 25, downProb: 75 },
+                meetsExpectation: { count: 35, avgChange: 0.1, upProb: 50, downProb: 50 },
+                belowExpectation: { count: 12, avgChange: 0.6, upProb: 70, downProb: 30 },
+            },
+            cpi: {
+                aboveExpectation: { count: 28, avgChange: 0.4, upProb: 62, downProb: 38 },
+                meetsExpectation: { count: 24, avgChange: 0.0, upProb: 50, downProb: 50 },
+                belowExpectation: { count: 32, avgChange: -0.3, upProb: 35, downProb: 65 },
+            },
+            nfp: {
+                aboveExpectation: { count: 30, avgChange: -0.5, upProb: 32, downProb: 68 },
+                meetsExpectation: { count: 18, avgChange: 0.0, upProb: 50, downProb: 50 },
+                belowExpectation: { count: 34, avgChange: 0.4, upProb: 68, downProb: 32 },
+            },
+        },
     },
-    // Commodities
+    // Commodities - WTI
     'Commodity:Energy:WTI': {
         name: 'WTI',
         description: 'Crude Oil WTI',
-        basePrice: 82.45,
+        basePrice: 72.45,
         volatility: 2,
         change: 1.5,
-        tradingViewSymbol: 'USOIL'
+        tradingViewSymbol: 'USOIL',
+        macroEventIds: ['eia', 'opec', 'gdp'],
+        macroStats: {
+            eia: {
+                aboveExpectation: { count: 45, avgChange: -1.2, upProb: 30, downProb: 70 },
+                meetsExpectation: { count: 8, avgChange: 0.1, upProb: 50, downProb: 50 },
+                belowExpectation: { count: 42, avgChange: 1.5, upProb: 72, downProb: 28 },
+            },
+            opec: {
+                aboveExpectation: { count: 8, avgChange: -3.5, upProb: 20, downProb: 80 },
+                meetsExpectation: { count: 15, avgChange: 0.2, upProb: 52, downProb: 48 },
+                belowExpectation: { count: 10, avgChange: 4.2, upProb: 82, downProb: 18 },
+            },
+            gdp: {
+                aboveExpectation: { count: 22, avgChange: 1.0, upProb: 65, downProb: 35 },
+                meetsExpectation: { count: 24, avgChange: 0.1, upProb: 52, downProb: 48 },
+                belowExpectation: { count: 20, avgChange: -0.8, upProb: 38, downProb: 62 },
+            },
+        },
     },
+    // Commodities - Gold
     'Commodity:Metal:XAU': {
         name: 'Gold',
         description: 'Gold / US Dollar',
-        basePrice: 4338.38,
+        basePrice: 2638.38,
         volatility: 20,
         change: 1.2,
-        tradingViewSymbol: 'XAUUSD'
+        tradingViewSymbol: 'XAUUSD',
+        macroEventIds: ['fomc', 'cpi', 'nfp'],
+        macroStats: {
+            fomc: {
+                aboveExpectation: { count: 14, avgChange: -1.8, upProb: 28, downProb: 72 },
+                meetsExpectation: { count: 40, avgChange: 0.3, upProb: 55, downProb: 45 },
+                belowExpectation: { count: 16, avgChange: 2.2, upProb: 78, downProb: 22 },
+            },
+            cpi: {
+                aboveExpectation: { count: 26, avgChange: 0.8, upProb: 62, downProb: 38 },
+                meetsExpectation: { count: 22, avgChange: 0.1, upProb: 52, downProb: 48 },
+                belowExpectation: { count: 30, avgChange: -0.5, upProb: 38, downProb: 62 },
+            },
+            nfp: {
+                aboveExpectation: { count: 28, avgChange: -0.6, upProb: 35, downProb: 65 },
+                meetsExpectation: { count: 16, avgChange: 0.1, upProb: 50, downProb: 50 },
+                belowExpectation: { count: 32, avgChange: 0.9, upProb: 68, downProb: 32 },
+            },
+        },
     },
-    // Rates
+    // Rates - US10Y
     'Rate:US:10Y': {
         name: 'US10Y',
         description: '10Y Treasury',
         basePrice: 4.56,
         volatility: 0.05,
         change: -0.05,
-        tradingViewSymbol: 'US10Y'
-    }
+        tradingViewSymbol: 'US10Y',
+        macroEventIds: ['fomc', 'cpi', 'treasury'],
+        macroStats: {
+            fomc: {
+                aboveExpectation: { count: 12, avgChange: 3.5, upProb: 75, downProb: 25 },
+                meetsExpectation: { count: 42, avgChange: 0.2, upProb: 52, downProb: 48 },
+                belowExpectation: { count: 18, avgChange: -2.8, upProb: 22, downProb: 78 },
+            },
+            cpi: {
+                aboveExpectation: { count: 28, avgChange: 1.2, upProb: 70, downProb: 30 },
+                meetsExpectation: { count: 24, avgChange: 0.1, upProb: 52, downProb: 48 },
+                belowExpectation: { count: 32, avgChange: -0.8, upProb: 32, downProb: 68 },
+            },
+            treasury: {
+                aboveExpectation: { count: 35, avgChange: -0.5, upProb: 38, downProb: 62 },
+                meetsExpectation: { count: 20, avgChange: 0.1, upProb: 50, downProb: 50 },
+                belowExpectation: { count: 30, avgChange: 0.6, upProb: 65, downProb: 35 },
+            },
+        },
+    },
 }
 
-// Default fallback for unknown assets
+// Default fallback
 const defaultAsset = {
     name: 'Unknown',
     description: 'Unknown Asset',
     basePrice: 100,
     volatility: 5,
     change: 0,
-    tradingViewSymbol: 'SPY'
+    tradingViewSymbol: 'SPY',
+    macroEventIds: ['cpi', 'nfp', 'fomc'],
+    macroStats: {
+        cpi: {
+            aboveExpectation: { count: 20, avgChange: -1.0, upProb: 40, downProb: 60 },
+            meetsExpectation: { count: 20, avgChange: 0.0, upProb: 50, downProb: 50 },
+            belowExpectation: { count: 20, avgChange: 1.0, upProb: 60, downProb: 40 },
+        },
+        nfp: {
+            aboveExpectation: { count: 20, avgChange: -1.0, upProb: 40, downProb: 60 },
+            meetsExpectation: { count: 20, avgChange: 0.0, upProb: 50, downProb: 50 },
+            belowExpectation: { count: 20, avgChange: 1.0, upProb: 60, downProb: 40 },
+        },
+        fomc: {
+            aboveExpectation: { count: 20, avgChange: -1.0, upProb: 40, downProb: 60 },
+            meetsExpectation: { count: 20, avgChange: 0.0, upProb: 50, downProb: 50 },
+            belowExpectation: { count: 20, avgChange: 1.0, upProb: 60, downProb: 40 },
+        },
+    },
 }
 
 const AssetDetailPage = () => {
@@ -105,9 +342,7 @@ const AssetDetailPage = () => {
     // Get asset config based on id
     const assetData = useMemo(() => {
         if (!id) return defaultAsset
-        // Try exact match first
         if (assetConfig[id]) return assetConfig[id]
-        // Try to find by partial match (e.g., if route uses different format)
         const foundKey = Object.keys(assetConfig).find(key =>
             key.toLowerCase().includes(id.toLowerCase()) ||
             id.toLowerCase().includes(key.split(':').pop()?.toLowerCase() || '')
@@ -122,19 +357,18 @@ const AssetDetailPage = () => {
         const now = Math.floor(Date.now() / 1000)
         for (let i = 0; i < 100; i++) {
             price += (Math.random() - 0.5) * assetData.volatility
-            // Ensure price doesn't go negative
             price = Math.max(price, assetData.basePrice * 0.8)
             data.push({ time: now - (100 - i) * 3600, value: price })
         }
         return data
     }, [assetData])
 
-    // Current price (last value from price data)
+    // Current price
     const currentPrice = useMemo(() => {
         return priceData.length > 0 ? priceData[priceData.length - 1].value : assetData.basePrice
     }, [priceData, assetData])
 
-    // Format price based on asset type
+    // Format price
     const formatPrice = (price: number) => {
         if (price >= 1000) {
             return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -147,18 +381,23 @@ const AssetDetailPage = () => {
         }
     }
 
-    // Mock data for historical stats
-    const statsData = [
-        { comparison: 'Actual < Forecast', count: 28, upCount: 9, upProb: 32.14, downCount: 19, downProb: 67.86, avgVolatility: 0.1766 },
-        { comparison: 'Actual = Forecast', count: 23, upCount: 10, upProb: 43.48, downCount: 13, downProb: 56.52, avgVolatility: 0.1542 },
-        { comparison: 'Actual > Forecast', count: 33, upCount: 18, upProb: 54.55, downCount: 15, downProb: 45.45, avgVolatility: 0.1571 },
-    ]
+    // Get macro events for this asset
+    const assetMacroEvents = useMemo(() => {
+        return assetData.macroEventIds.map(eventId => {
+            const eventDef = macroEvents[eventId as keyof typeof macroEvents]
+            const stats = assetData.macroStats[eventId]
+            return {
+                ...eventDef,
+                stats,
+            }
+        })
+    }, [assetData])
 
     const isPositiveChange = assetData.change >= 0
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
-            {/* Header / Breadcrumbs */}
+            {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="flex items-center gap-6">
                     <Link to="/" className="w-12 h-12 flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/50 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 hover:shadow-glass-sm transition-all duration-300 group">
@@ -166,7 +405,7 @@ const AssetDetailPage = () => {
                     </Link>
                     <div>
                         <div className="flex items-center gap-3">
-                            <h2 className="text-3xl font-display font-bold text-slate-800 dark:text-slate-100 uppercase tracking-tight">{id || assetData.name}</h2>
+                            <h2 className="text-3xl font-display font-bold text-slate-800 dark:text-slate-100 uppercase tracking-tight">{assetData.name}</h2>
                             <button className="text-slate-300 hover:text-amber-400 dark:text-slate-600 dark:hover:text-amber-400 transition-colors">
                                 <Star size={22} />
                             </button>
@@ -175,7 +414,7 @@ const AssetDetailPage = () => {
                             <span className="text-slate-500 font-medium text-sm">{assetData.description}</span>
                             <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
                             <div className={`flex items-center gap-1 font-bold text-sm ${isPositiveChange ? 'text-financial-up' : 'text-financial-down'}`}>
-                                <TrendingUp size={14} className={isPositiveChange ? '' : 'rotate-180'} />
+                                {isPositiveChange ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
                                 {isPositiveChange ? '+' : ''}{assetData.change.toFixed(2)}%
                             </div>
                         </div>
@@ -202,9 +441,9 @@ const AssetDetailPage = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Left Column: Chart & Stats */}
+                {/* Left Column: Chart & Macro Events */}
                 <div className="lg:col-span-8 space-y-8">
-                    {/* Main Chart Card */}
+                    {/* Price Chart Card */}
                     <div className="card-premium flex flex-col p-1 overflow-visible">
                         <div className="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div className="flex bg-slate-100 dark:bg-slate-900/50 p-1 rounded-xl border border-slate-200 dark:border-slate-700/50">
@@ -225,7 +464,7 @@ const AssetDetailPage = () => {
                             <div className="flex flex-col items-end">
                                 <div className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">
                                     <span className="w-1.5 h-1.5 rounded-full bg-financial-up animate-pulse"></span>
-                                    Live Price
+                                    实时价格
                                 </div>
                                 <div className="text-3xl font-display font-bold text-slate-800 dark:text-slate-100 tracking-tight">
                                     ${formatPrice(currentPrice)}
@@ -233,11 +472,11 @@ const AssetDetailPage = () => {
                             </div>
                         </div>
 
-                        <div className="flex-1 px-4 pb-4 min-h-[450px]">
+                        <div className="flex-1 px-4 pb-4 min-h-[350px]">
                             <Suspense fallback={
                                 <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 gap-3">
                                     <Loader2 className="animate-spin" size={32} />
-                                    <span className="text-sm font-bold uppercase tracking-widest">Initializing Feed...</span>
+                                    <span className="text-sm font-bold uppercase tracking-widest">加载价格数据...</span>
                                 </div>
                             }>
                                 <PriceChart data={priceData} />
@@ -245,83 +484,60 @@ const AssetDetailPage = () => {
                         </div>
                     </div>
 
-                    {/* Prediction Context */}
-                    <div className="space-y-8">
-                        {/* Summary Stats Table */}
-                        <div className="card-premium p-8">
-                            <div className="flex items-center justify-between mb-8">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500">
-                                        <TrendingUp size={22} />
-                                    </div>
-                                    <h3 className="text-xl font-display font-bold text-slate-800 dark:text-slate-100">Post-Release Asset Reactions</h3>
-                                </div>
-                            </div>
-                            <ScenarioStatsTable data={statsData} />
+                    {/* Macro Events Section */}
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-xl font-display font-bold text-slate-800 dark:text-slate-100">
+                                影响 {assetData.name} 价格的宏观数据
+                            </h3>
+                            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                                {assetMacroEvents.length} 个关键指标
+                            </span>
                         </div>
 
-                        {/* Trend Chart */}
-                        <div className="grid grid-cols-1 gap-8">
-                            <div className="card-premium p-8">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="w-10 h-10 rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary">
-                                        <Activity size={22} />
-                                    </div>
-                                    <h3 className="text-xl font-display font-bold text-slate-800 dark:text-slate-100">Market Sentiment</h3>
-                                </div>
-                                <div className="space-y-6">
-                                    <div className="flex justify-between items-end mb-1">
-                                        <span className="text-sm font-bold text-financial-up uppercase tracking-wider">Bullish</span>
-                                        <span className="text-2xl font-display font-black text-slate-800 dark:text-slate-100">68%</span>
-                                    </div>
-                                    <div className="h-3 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
-                                        <div className="h-full bg-financial-up shadow-[0_0_12px_rgba(16,185,129,0.4)]" style={{ width: '68%' }}></div>
-                                        <div className="h-full bg-financial-down opacity-30" style={{ width: '32%' }}></div>
-                                    </div>
-                                    <p className="text-xs text-slate-500 font-medium leading-relaxed">
-                                        Based on the last 24h prediction volume. Traders are expecting a positive outcome for the upcoming release.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="card-premium p-8">
-                                <EventAnalysisChart />
-                            </div>
+                        <div className="space-y-4">
+                            {assetMacroEvents.map((event) => (
+                                <MacroEventCard
+                                    key={event.id}
+                                    event={event}
+                                    assetName={assetData.name}
+                                />
+                            ))}
                         </div>
                     </div>
                 </div>
 
-                {/* Right Column: Console */}
+                {/* Right Column: Betting Panel */}
                 <div className="lg:col-span-4 space-y-8">
                     <div className="sticky top-28 space-y-8">
                         <div className="card-premium p-8 shadow-glass-lg border-brand-primary/20 bg-white/100 dark:bg-slate-900/100">
                             <div className="flex items-center justify-between mb-8">
                                 <div>
-                                    <h3 className="text-2xl font-display font-bold text-slate-800 dark:text-slate-100">Predict Result</h3>
+                                    <h3 className="text-2xl font-display font-bold text-slate-800 dark:text-slate-100">预测下注</h3>
                                     <div className="flex items-center gap-2 mt-1">
                                         <Info size={14} className="text-brand-primary" />
-                                        <p className="text-xs font-bold text-brand-primary uppercase tracking-widest">Next Event: Dec 19</p>
+                                        <p className="text-xs font-bold text-brand-primary uppercase tracking-widest">下一事件: CPI 1月15日</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="bg-slate-100 dark:bg-slate-800/50 p-6 rounded-[1.5rem] mb-8 border border-slate-200 dark:border-slate-700/50">
-                                <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">Major Macro Event</p>
+                                <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">选择预测事件</p>
                                 <h4 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-1">Consumer Price Index (CPI)</h4>
-                                <p className="text-xs text-slate-500 font-medium">Core Inflation data release by the BLS.</p>
+                                <p className="text-xs text-slate-500 font-medium">预测CPI数据发布后 {assetData.name} 的价格走势</p>
                             </div>
 
                             <BettingPanel asset={id} />
                         </div>
 
                         <div className="card-premium p-8 bg-brand-primary/5 border-brand-primary/10">
-                            <h3 className="font-display font-bold text-lg mb-4 text-slate-800 dark:text-slate-100">Market Info</h3>
+                            <h3 className="font-display font-bold text-lg mb-4 text-slate-800 dark:text-slate-100">市场信息</h3>
                             <div className="space-y-4">
                                 <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                                    Prediction market for {assetData.name} based on US inflation volatility.
+                                    基于宏观经济数据发布的 {assetData.name} 价格预测市场。
                                 </p>
                                 <div className="flex items-center gap-3 text-brand-primary font-bold text-xs uppercase tracking-widest hover:gap-4 transition-all cursor-pointer">
-                                    View Event Methodology <ChevronRight size={14} />
+                                    查看预测方法 <ChevronRight size={14} />
                                 </div>
                             </div>
                         </div>
@@ -333,4 +549,3 @@ const AssetDetailPage = () => {
 }
 
 export default AssetDetailPage
-
