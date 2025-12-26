@@ -19,12 +19,11 @@ const TwitterCallback = () => {
 
     const handleLogin = async (code: string) => {
         try {
-            // In a real app, this URL should be from env or constant
-            // Assuming proxy is set up or CORS is handled. 
-            // The backend endpoint is /api/v1/auth/login/twitter
-            const redirectUri = window.location.origin + '/auth/twitter/callback'
+            // Use environment variable for API URL, fallback to localhost for development
+            const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+            const redirectUri = window.location.origin + '/auth/twitter/callback';
 
-            const response = await fetch('http://localhost:8000/api/v1/auth/login/twitter', {
+            const response = await fetch(`${apiBaseUrl}/auth/login/twitter`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
