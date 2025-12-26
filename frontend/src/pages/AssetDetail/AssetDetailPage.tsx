@@ -8,28 +8,153 @@ import PriceChart from '../../components/PriceChart/PriceChart'
 import ScenarioStatsTable from '../../components/ScenarioStatsTable/ScenarioStatsTable'
 import EventAnalysisChart from '../../components/charts/EventAnalysisChart'
 
+// Asset configuration map with realistic data
+const assetConfig: Record<string, {
+    name: string;
+    description: string;
+    basePrice: number;
+    volatility: number;
+    change: number;
+    tradingViewSymbol: string;
+}> = {
+    // Crypto
+    'Crypto:L1:BTC': {
+        name: 'BTC',
+        description: 'Bitcoin / US Dollar',
+        basePrice: 88436.39,
+        volatility: 500,
+        change: -0.44,
+        tradingViewSymbol: 'BTCUSD'
+    },
+    'Crypto:L1:ETH': {
+        name: 'ETH',
+        description: 'Ethereum / US Dollar',
+        basePrice: 2976.20,
+        volatility: 50,
+        change: 0.19,
+        tradingViewSymbol: 'ETHUSD'
+    },
+    // Equities
+    'Equity:USTECH:NVDA': {
+        name: 'NVDA',
+        description: 'NVIDIA Corporation',
+        basePrice: 875.50,
+        volatility: 15,
+        change: 3.2,
+        tradingViewSymbol: 'NVDA'
+    },
+    'Equity:Index:SPX': {
+        name: 'S&P 500',
+        description: 'S&P 500 Index',
+        basePrice: 6834.49,
+        volatility: 30,
+        change: 0.88,
+        tradingViewSymbol: 'SPX'
+    },
+    // Forex
+    'Forex:EUR:USD': {
+        name: 'EUR/USD',
+        description: 'Euro / US Dollar',
+        basePrice: 1.09,
+        volatility: 0.005,
+        change: -0.3,
+        tradingViewSymbol: 'EURUSD'
+    },
+    // Commodities
+    'Commodity:Energy:WTI': {
+        name: 'WTI',
+        description: 'Crude Oil WTI',
+        basePrice: 82.45,
+        volatility: 2,
+        change: 1.5,
+        tradingViewSymbol: 'USOIL'
+    },
+    'Commodity:Metal:XAU': {
+        name: 'Gold',
+        description: 'Gold / US Dollar',
+        basePrice: 4338.38,
+        volatility: 20,
+        change: 1.2,
+        tradingViewSymbol: 'XAUUSD'
+    },
+    // Rates
+    'Rate:US:10Y': {
+        name: 'US10Y',
+        description: '10Y Treasury',
+        basePrice: 4.56,
+        volatility: 0.05,
+        change: -0.05,
+        tradingViewSymbol: 'US10Y'
+    }
+}
+
+// Default fallback for unknown assets
+const defaultAsset = {
+    name: 'Unknown',
+    description: 'Unknown Asset',
+    basePrice: 100,
+    volatility: 5,
+    change: 0,
+    tradingViewSymbol: 'SPY'
+}
+
 const AssetDetailPage = () => {
     const { id } = useParams()
     const [timeframe, setTimeframe] = useState('1D')
 
-    // Mock data for price history
+    // Get asset config based on id
+    const assetData = useMemo(() => {
+        if (!id) return defaultAsset
+        // Try exact match first
+        if (assetConfig[id]) return assetConfig[id]
+        // Try to find by partial match (e.g., if route uses different format)
+        const foundKey = Object.keys(assetConfig).find(key =>
+            key.toLowerCase().includes(id.toLowerCase()) ||
+            id.toLowerCase().includes(key.split(':').pop()?.toLowerCase() || '')
+        )
+        return foundKey ? assetConfig[foundKey] : defaultAsset
+    }, [id])
+
+    // Generate price data based on asset's base price and volatility
     const priceData = useMemo(() => {
         const data = []
-        let price = 64000
+        let price = assetData.basePrice
         const now = Math.floor(Date.now() / 1000)
         for (let i = 0; i < 100; i++) {
-            price += (Math.random() - 0.5) * 500
+            price += (Math.random() - 0.5) * assetData.volatility
+            // Ensure price doesn't go negative
+            price = Math.max(price, assetData.basePrice * 0.8)
             data.push({ time: now - (100 - i) * 3600, value: price })
         }
         return data
-    }, [])
+    }, [assetData])
 
-    // Mock data for historical stats (Image 0 structure)
+    // Current price (last value from price data)
+    const currentPrice = useMemo(() => {
+        return priceData.length > 0 ? priceData[priceData.length - 1].value : assetData.basePrice
+    }, [priceData, assetData])
+
+    // Format price based on asset type
+    const formatPrice = (price: number) => {
+        if (price >= 1000) {
+            return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        } else if (price >= 10) {
+            return price.toFixed(2)
+        } else if (price >= 1) {
+            return price.toFixed(4)
+        } else {
+            return price.toFixed(6)
+        }
+    }
+
+    // Mock data for historical stats
     const statsData = [
         { comparison: 'Actual < Forecast', count: 28, upCount: 9, upProb: 32.14, downCount: 19, downProb: 67.86, avgVolatility: 0.1766 },
         { comparison: 'Actual = Forecast', count: 23, upCount: 10, upProb: 43.48, downCount: 13, downProb: 56.52, avgVolatility: 0.1542 },
         { comparison: 'Actual > Forecast', count: 33, upCount: 18, upProb: 54.55, downCount: 15, downProb: 45.45, avgVolatility: 0.1571 },
     ]
+
+    const isPositiveChange = assetData.change >= 0
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
@@ -41,17 +166,17 @@ const AssetDetailPage = () => {
                     </Link>
                     <div>
                         <div className="flex items-center gap-3">
-                            <h2 className="text-3xl font-display font-bold text-slate-800 dark:text-slate-100 uppercase tracking-tight">{id?.replace('-', '/') || 'BTC/USD'}</h2>
+                            <h2 className="text-3xl font-display font-bold text-slate-800 dark:text-slate-100 uppercase tracking-tight">{id || assetData.name}</h2>
                             <button className="text-slate-300 hover:text-amber-400 dark:text-slate-600 dark:hover:text-amber-400 transition-colors">
                                 <Star size={22} />
                             </button>
                         </div>
                         <div className="flex items-center gap-3 mt-1">
-                            <span className="text-slate-500 font-medium text-sm">Bitcoin / US Dollar</span>
+                            <span className="text-slate-500 font-medium text-sm">{assetData.description}</span>
                             <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
-                            <div className="flex items-center gap-1 text-financial-up font-bold text-sm">
-                                <TrendingUp size={14} />
-                                +2.45%
+                            <div className={`flex items-center gap-1 font-bold text-sm ${isPositiveChange ? 'text-financial-up' : 'text-financial-down'}`}>
+                                <TrendingUp size={14} className={isPositiveChange ? '' : 'rotate-180'} />
+                                {isPositiveChange ? '+' : ''}{assetData.change.toFixed(2)}%
                             </div>
                         </div>
                     </div>
@@ -65,7 +190,7 @@ const AssetDetailPage = () => {
                         <Share2 size={20} />
                     </button>
                     <a
-                        href={`https://www.tradingview.com/symbols/${id?.replace('-', '').toUpperCase()}/`}
+                        href={`https://www.tradingview.com/symbols/${assetData.tradingViewSymbol}/`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2.5 px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/50 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50 transition-all shadow-glass-sm"
@@ -103,7 +228,7 @@ const AssetDetailPage = () => {
                                     Live Price
                                 </div>
                                 <div className="text-3xl font-display font-bold text-slate-800 dark:text-slate-100 tracking-tight">
-                                    $64,230.50
+                                    ${formatPrice(currentPrice)}
                                 </div>
                             </div>
                         </div>
@@ -122,7 +247,7 @@ const AssetDetailPage = () => {
 
                     {/* Prediction Context */}
                     <div className="space-y-8">
-                        {/* Summary Stats Table (Image 0 Refined) */}
+                        {/* Summary Stats Table */}
                         <div className="card-premium p-8">
                             <div className="flex items-center justify-between mb-8">
                                 <div className="flex items-center gap-3">
@@ -135,7 +260,7 @@ const AssetDetailPage = () => {
                             <ScenarioStatsTable data={statsData} />
                         </div>
 
-                        {/* Trend Chart (Image 1 Refined) */}
+                        {/* Trend Chart */}
                         <div className="grid grid-cols-1 gap-8">
                             <div className="card-premium p-8">
                                 <div className="flex items-center gap-3 mb-6">
@@ -193,7 +318,7 @@ const AssetDetailPage = () => {
                             <h3 className="font-display font-bold text-lg mb-4 text-slate-800 dark:text-slate-100">Market Info</h3>
                             <div className="space-y-4">
                                 <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                                    Prediction market for {id?.replace('-', '/').toUpperCase()} based on US inflation volatility.
+                                    Prediction market for {assetData.name} based on US inflation volatility.
                                 </p>
                                 <div className="flex items-center gap-3 text-brand-primary font-bold text-xs uppercase tracking-widest hover:gap-4 transition-all cursor-pointer">
                                     View Event Methodology <ChevronRight size={14} />
@@ -208,3 +333,4 @@ const AssetDetailPage = () => {
 }
 
 export default AssetDetailPage
+

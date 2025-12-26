@@ -28,7 +28,14 @@ ChartJS.register(
     Legend
 )
 
-const EventAnalysisChart = ({ data }) => {
+interface EventAnalysisChartProps {
+    data?: {
+        labels: string[];
+        datasets: any[];
+    };
+}
+
+const EventAnalysisChart: React.FC<EventAnalysisChartProps> = ({ data }) => {
     const options = {
         responsive: true,
         maintainAspectRatio: false,
