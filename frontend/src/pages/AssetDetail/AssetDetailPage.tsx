@@ -511,9 +511,9 @@ const AssetDetailPage = () => {
                 <div className="lg:col-span-4 space-y-8">
                     <div className="sticky top-28 space-y-8">
                         <div className="card-premium p-8 shadow-glass-lg border-brand-primary/20 bg-white/100 dark:bg-slate-900/100">
-                            <div className="flex items-center justify-between mb-8">
+                            <div className="flex items-center justify-between mb-6">
                                 <div>
-                                    <h3 className="text-2xl font-display font-bold text-slate-800 dark:text-slate-100">预测下注</h3>
+                                    <h3 className="text-2xl font-display font-bold text-slate-800 dark:text-slate-100">数据狙击手</h3>
                                     <div className="flex items-center gap-2 mt-1">
                                         <Info size={14} className="text-brand-primary" />
                                         <p className="text-xs font-bold text-brand-primary uppercase tracking-widest">下一事件: CPI 1月15日</p>
@@ -521,13 +521,11 @@ const AssetDetailPage = () => {
                                 </div>
                             </div>
 
-                            <div className="bg-slate-100 dark:bg-slate-800/50 p-6 rounded-[1.5rem] mb-8 border border-slate-200 dark:border-slate-700/50">
-                                <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">选择预测事件</p>
-                                <h4 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-1">Consumer Price Index (CPI)</h4>
-                                <p className="text-xs text-slate-500 font-medium">预测CPI数据发布后 {assetData.name} 的价格走势</p>
-                            </div>
-
-                            <BettingPanel asset={id} />
+                            <BettingPanel
+                                asset={id}
+                                forecastValue={3.1}
+                                forecastLabel="CPI 预期值"
+                            />
                         </div>
 
                         <div className="card-premium p-8 bg-brand-primary/5 border-brand-primary/10">
