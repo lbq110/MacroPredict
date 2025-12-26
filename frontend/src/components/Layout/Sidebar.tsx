@@ -52,6 +52,14 @@ const Sidebar = ({ isOpen, onClose }) => {
                     <TrendingUp size={22} />
                     <span className="font-display font-bold text-sm tracking-wide">Rankings</span>
                 </NavLink>
+                <NavLink
+                    to="/profile"
+                    onClick={() => onClose?.()}
+                    className={({ isActive }) => `flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all duration-300 ${isActive ? 'bg-brand-primary text-white shadow-lg shadow-brand-primary/25' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                >
+                    <Settings size={22} />
+                    <span className="font-display font-bold text-sm tracking-wide">Profile</span>
+                </NavLink>
             </nav>
 
             <div className="p-6 border-t border-slate-200/50 dark:border-white/5">
