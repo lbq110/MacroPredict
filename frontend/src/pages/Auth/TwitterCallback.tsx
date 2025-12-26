@@ -40,9 +40,18 @@ const TwitterCallback = () => {
             }
 
             const data = await response.json()
-            // Store token
+            // Store token and user info
             localStorage.setItem('token', data.token)
             localStorage.setItem('userId', data.userId)
+            if (data.avatar) {
+                localStorage.setItem('userAvatar', data.avatar)
+            }
+            if (data.username) {
+                localStorage.setItem('username', data.username)
+            }
+
+            // Dispatch event to notify Header of login state change
+            window.dispatchEvent(new Event('loginStateChanged'))
 
             // Redirect to home or dashboard
             navigate('/')

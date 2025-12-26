@@ -28,6 +28,9 @@ class TwitterLoginRequest(BaseModel):
 class AuthResponse(BaseModel):
     token: str
     userId: str
+    avatar: Optional[str] = None
+    username: Optional[str] = None
+
 
 class Token(BaseModel):
     access_token: str

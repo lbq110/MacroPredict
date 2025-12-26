@@ -163,4 +163,7 @@ async def login_twitter(login_data: TwitterLoginRequest, db: AsyncSession = Depe
     return {
         "token": auth_service.create_access_token(user.id),
         "userId": str(user.id),
+        "avatar": avatar_url,
+        "username": username,
     }
+
