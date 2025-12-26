@@ -1,5 +1,5 @@
 import React from 'react'
-import { ArrowUpRight, ArrowDownRight, Clock, CheckCircle2, AlertCircle, History, Wallet, TrendingUp, BarChart3 } from 'lucide-react'
+import { ArrowUpRight, ArrowDownRight, Clock, CheckCircle2, AlertCircle, History, Wallet, TrendingUp, BarChart3, Activity } from 'lucide-react'
 
 const PortfolioPage = () => {
     const activeBets = [
